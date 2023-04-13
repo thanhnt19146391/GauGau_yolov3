@@ -327,13 +327,14 @@ class ThanhNT_GUI(tk.Tk):
         self.anchors = [[116,90, 156,198, 373,326], [30,61, 62,45, 59,119], [10,13, 16,30, 33,23]]
         
         # define the probability threshold for detected objects
-        self.class_threshold = 0.6
-                
+        self.class_threshold = 0.6       
+
         self.frames = frames
-
-        self.max_index = len(frames)
-
-        self.frame_index = -1
+        if frames == None:
+            self.vid = cv2.VideoCapture(0)
+        else:
+            self.max_index = len(frames)    
+            self.frame_index = -1
 
         """ Frontend """
         # Init Tk
@@ -357,10 +358,18 @@ class ThanhNT_GUI(tk.Tk):
 
         
     def update_frame(self):
-        # self.frame_index = (self.frame_index + 1) % self.max_index
-        self.frame_index = (self.frame_index + 1) % 10
-        print(f'Frame {self.frame_index}')
-        frame = self.frames[self.frame_index]
+        
+        if self.frames == None:
+            ret, frame = self.vid.read()
+            if ret: 
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            else:
+                return
+        else:
+            self.frame_index = (self.frame_index + 1) % self.max_index
+            # self.frame_index = (self.frame_index + 1) % 10
+            print(f'Frame {self.frame_index}')
+            frame = self.frames[self.frame_index]
 
         # load and prepare image
         image, image_w, image_h = ThanhNT_load_image_pixels(mat = frame, shape = self.input_shape)
@@ -402,7 +411,7 @@ def ThanhNT_main():
 
     
 
-    # define our new video
+    """ # define our new video
     video_filename = 'elderly.mp4'
 
     cap = cv2.VideoCapture(video_filename)
@@ -415,9 +424,10 @@ def ThanhNT_main():
         else:
             break
 
-    print(f'Number of frame: {len(frames)}')
+    print(f'Number of frame: {len(frames)}') 
+    """
 
-    app = ThanhNT_GUI(frames = frames)
+    app = ThanhNT_GUI(frames = None)
     app.mainloop()
     
 
